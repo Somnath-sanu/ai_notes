@@ -1,4 +1,3 @@
-import logo from "@/assets/logo.png";
 import { ModeToggle } from "@/components/mode-toggle";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,7 +12,7 @@ export function Navbar() {
           className="flex items-center gap-3 text-xl font-semibold text-card-foreground hover:opacity-80 transition-opacity"
         >
           <Image
-            src={logo}
+            src={"/logo.png"}
             alt="Smart Notes Logo"
             width={32}
             height={32}

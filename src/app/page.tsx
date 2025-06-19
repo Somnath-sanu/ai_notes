@@ -1,4 +1,3 @@
-import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,7 +9,7 @@ export default function Home() {
         {/* Logo */}
         <div className="mb-8">
           <Image
-            src={logo}
+            src={"/logo.png"}
             alt="Smart Notes Logo"
             width={120}
             height={120}
