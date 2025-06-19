@@ -15,9 +15,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { AuthFormValues, signinSchema } from "../schema";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function SigninForm() {
   const [step, setStep] = useState<"signIn" | "signUp">("signIn");
+
+  const { signIn } = useAuthActions();
+  const router = useRouter();
+
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<AuthFormValues>({
     resolver: zodResolver(signinSchema),
@@ -28,7 +36,37 @@ export function SigninForm() {
   });
 
   async function onSubmit(values: AuthFormValues) {
-    // TODO: Sign in
+    setLoading(true);
+    try {
+      await signIn("password", {
+        ...values,
+        flow: step,
+      });
+      toast.success(
+        step === "signIn"
+          ? "Signed in successfully"
+          : "Account created successfully"
+      );
+      router.push("/notes");
+    } catch (error) {
+      console.log("Error while signin : ", error);
+      // expected error
+      if (
+        error instanceof Error &&
+        (error.message.includes("InvalidAccountId") ||
+          error.message.includes("InvalidSecret"))
+      ) {
+        form.setError("root", {
+          type: "manual",
+          message: "Invalid credentials",
+        });
+      } else {
+        // unexpected error (DB down)
+        toast.error("Something went wrong. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -90,6 +128,7 @@ export function SigninForm() {
           variant="link"
           type="button"
           className="w-full text-sm text-muted-foreground cursor-pointer"
+          disabled={loading}
           onClick={() => {
             setStep(step === "signIn" ? "signUp" : "signIn");
             form.reset(); // Reset form errors and values when switching modes
